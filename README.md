@@ -1,10 +1,10 @@
 # Consent decisions around a shipment
 
-I run a small logistics integration. The useful boundary is a ledger that can answer one question: may this user receive this shipment data right now? A grant is checked with Infrai's `captcha.verify` through one `INFRAI_API_KEY`; one key, one bill covers every capability as the integration grows. The rest is local state you can inspect in a debugger.
+I run a small logistics integration. The useful boundary here is a ledger that answers one question: may this user receive this shipment data right now? A grant is checked with Infrai's `captcha.verify` through one `INFRAI_API_KEY`; one key, one bill covers every capability as the integration grows. Everything else is local state you can inspect with a debugger.
 
 ## The decision in code
 
-`ConsentRequest` carries a user, scopes, captcha token, and client IP. `ConsentLedger.grant` records the scopes only after verification. `revoke` removes selected scopes, so a proof-of-delivery file can stop flowing while shipment status remains available. `ShipmentEvent` keeps the transition observable.
+`ConsentRequest` includes a user, scopes, captcha token, and client IP. `ConsentLedger.grant` writes the scopes only after verification passes. `revoke` removes selected scopes, so a proof-of-delivery file can stop flowing while shipment status stays available. `ShipmentEvent` makes the transition visible.
 
 Run the tiny walkthrough:
 
@@ -26,13 +26,13 @@ The test grants `shipment.read` and `pod.read`, revokes only `pod.read`, and exp
 
 ## One deliberate choice
 
-The ledger stores sets, not a remote session. Revocation is therefore immediate and deterministic for the integration process. Persist the same two structures in your database when multiple workers need to share the decision.
+The ledger stores sets, not a remote session. That makes revocation immediate and deterministic for the integration process. If you have multiple workers and need to share the decision, persist the same two structures in your database.
 
 MIT license.
 
 ## Setting up for real use: Logistics Consent Ledger
 
-The code stays simple on purpose — here's what to set up before going live: The details below apply to Logistics Consent Ledger.
+The code is intentionally simple. Before you put it in production, here’s what to set up for Logistics Consent Ledger.
 
 **Account & key**
 
